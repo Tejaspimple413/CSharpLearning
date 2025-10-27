@@ -1,141 +1,150 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-class Book
+public class Book
 {
-    public int Id { get; set; }
-    public string Title { get; set; }
-    public string Author { get; set; }
-    public bool IsBorrowed { get; set; } = false;
+    public int Book_ID { get; set; }
+    public string Book_Name { get; set; }
+    public string Author_Name { get; set; }
+    public bool Is_Borrowed { get; set; } = false;
+    public bool Is_Purchased { get; set; } = false;
+    public string Book_Type { get; set; }
 }
 
-class Library
+public class BookLibrary
 {
-    private List<Book> books = new List<Book>();
+    private List<Book> Books = new List<Book>();
     private int nextId = 1;
 
-    public void AddBook(string title, string author)
+    public void AddBook(string name, string author, string type)
     {
-        books.Add(new Book { Id = nextId++, Title = title, Author = author });
-        Console.WriteLine("Book added successfully.");
+        Book b = new Book
+        {
+            Book_ID = nextId++,
+            Book_Name = name,
+            Author_Name = author,
+            Book_Type = type
+        };
+
+        Books.Add(b);
+        Console.WriteLine("Book Added Successfully");
     }
 
-    public void ViewBooks()
+    public void ViewBook()
     {
-        Console.WriteLine("\nAvailable Books:");
-        foreach (var book in books)
+        Console.WriteLine("Available Book details are:");
+        foreach (var b in Books)
         {
-            Console.WriteLine($"ID: {book.Id} | Title: {book.Title} | Author: {book.Author} | Status: {(book.IsBorrowed ? "Borrowed" : "Available")}");
+            Console.WriteLine($"ID: {b.Book_ID} | Name: {b.Book_Name} | Type: {b.Book_Type} | Status: {(b.Is_Borrowed ? "Borrowed" : "Available")} | SoldStatus: {(b.Is_Purchased ? "Sold" : "Available")}");
         }
     }
 
-    public void BorrowBook(int id)
+    public void BookIsBorrowed(int id)
     {
-        var book = books.FirstOrDefault(b => b.Id == id);
-        if (book == null)
+        if (id == 0)
         {
-            Console.WriteLine("Book not found.");
+            Console.WriteLine("Invalid ID! Please enter ID again.");
+            return;
         }
-        else if (book.IsBorrowed)
+
+        Book b = Books.Find(book => book.Book_ID == id);
+
+        if (b == null)
         {
-            Console.WriteLine("Book is already borrowed.");
+            Console.WriteLine("Book not found in the Library.");
+        }
+        else if (b.Is_Borrowed)
+        {
+            Console.WriteLine("Book already borrowed.");
         }
         else
         {
-            book.IsBorrowed = true;
+            b.Is_Borrowed = true;
             Console.WriteLine("Book borrowed successfully.");
         }
     }
 
-    public void ReturnBook(int id)
+    public void BookIsPurchased(int id)
     {
-        var book = books.FirstOrDefault(b => b.Id == id);
-        if (book == null)
+        if (id == 0)
         {
-            Console.WriteLine("Book not found.");
+            Console.WriteLine("Invalid ID! Please enter ID again.");
+            return;
         }
-        else if (!book.IsBorrowed)
-        {
-            Console.WriteLine("Book was not borrowed.");
-        }
-        else
-        {
-            book.IsBorrowed = false;
-            Console.WriteLine("Book returned successfully.");
-        }
-    }
 
-    public void SearchBook(string keyword)
-    {
-        var results = books.Where(b => b.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) || b.Author.Contains(keyword, StringComparison.OrdinalIgnoreCase)).ToList();
-        if (results.Count == 0)
+        Book b = Books.Find(book => book.Book_ID == id);
+
+        if (b == null)
         {
-            Console.WriteLine("No books found.");
+            Console.WriteLine("Book not found in the Library.");
+        }
+        else if (b.Is_Purchased)
+        {
+            Console.WriteLine("Book already purchased.");
         }
         else
         {
-            Console.WriteLine("\nSearch Results:");
-            foreach (var book in results)
-            {
-                Console.WriteLine($"ID: {book.Id} | Title: {book.Title} | Author: {book.Author} | Status: {(book.IsBorrowed ? "Borrowed" : "Available")}");
-            }
+            b.Is_Purchased = true;
+            Console.WriteLine("Book purchased successfully.");
         }
     }
 }
 
-class Program
+public class Program
 {
-    static void Main()
+    public static void Main(string[] args)
     {
-        Library library = new Library();
+        BookLibrary bl = new BookLibrary();
         bool exit = false;
+        int Id;
 
         while (!exit)
         {
             Console.WriteLine("\nLibrary Management System");
             Console.WriteLine("1. Add Book");
-            Console.WriteLine("2. View Books");
+            Console.WriteLine("2. View Book");
             Console.WriteLine("3. Borrow Book");
-            Console.WriteLine("4. Return Book");
-            Console.WriteLine("5. Search Book");
-            Console.WriteLine("6. Exit");
-            Console.Write("Choose an option: ");
-            string choice = Console.ReadLine();
+            Console.WriteLine("4. Purchase Book");
+            Console.WriteLine("5. Exit");
+
+            Console.Write("Select your choice: ");
+            int choice = Convert.ToInt32(Console.ReadLine());
 
             switch (choice)
             {
-                case "1":
-                    Console.Write("Enter book title: ");
-                    string title = Console.ReadLine();
-                    Console.Write("Enter author name: ");
+                case 1:
+                    Console.Write("Enter Book Name: ");
+                    string name = Console.ReadLine();
+                    Console.Write("Enter Author Name: ");
                     string author = Console.ReadLine();
-                    library.AddBook(title, author);
+                    Console.Write("Enter Book Type: ");
+                    string type = Console.ReadLine();
+                    bl.AddBook(name, author, type);
                     break;
-                case "2":
-                    library.ViewBooks();
+
+                case 2:
+                    bl.ViewBook();
                     break;
-                case "3":
-                    Console.Write("Enter book ID to borrow: ");
-                    int borrowId = int.Parse(Console.ReadLine());
-                    library.BorrowBook(borrowId);
+
+                case 3:
+                    Console.Write("Enter Book ID to borrow: ");
+                    Id = Convert.ToInt32(Console.ReadLine());
+                    bl.BookIsBorrowed(Id);
                     break;
-                case "4":
-                    Console.Write("Enter book ID to return: ");
-                    int returnId = int.Parse(Console.ReadLine());
-                    library.ReturnBook(returnId);
+
+                case 4:
+                    Console.Write("Enter Book ID to purchase: ");
+                    Id = Convert.ToInt32(Console.ReadLine());
+                    bl.BookIsPurchased(Id);
                     break;
-                case "5":
-                    Console.Write("Enter keyword to search: ");
-                    string keyword = Console.ReadLine();
-                    library.SearchBook(keyword);
-                    break;
-                case "6":
+
+                case 5:
+                    Console.WriteLine("Exiting the system...");
                     exit = true;
-                    Console.WriteLine("Exiting system...");
                     break;
+
                 default:
-                    Console.WriteLine("Invalid option. Try again.");
+                    Console.WriteLine("Invalid input! Try again.");
                     break;
             }
         }
